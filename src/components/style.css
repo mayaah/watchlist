@@ -1,0 +1,12 @@
+.select-search-container {
+	width: 100%;
+}
+
+/*https://github.com/tbleckert/react-select-search/issues/75#issuecomment-623368715*/
+.select-search-is-multiple:not(.select-search-has-focus) .select-search-select{
+	display: none;
+}
+
+.select-search-is-multiple .select-search-has-focus .select-search-container {
+	display: block;
+}
