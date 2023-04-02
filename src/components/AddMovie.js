@@ -198,9 +198,11 @@ const AddMovie = () => {
       title: movie.title,
       description: movie.description,
       genres: movie.genres,
+      language: movie.language,
       year: movie.year,
       runtime: movie.runtime,
-      youtubeId: movie.youtubeId,
+      fullPosterUrl: movie.fullPosterUrl,
+      trailerUrl: movie.trailerUrl,
       samHasSeen: movie.samHasSeen,
       mayaHasSeen: movie.mayaHasSeen,
     };
