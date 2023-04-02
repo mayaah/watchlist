@@ -13,6 +13,11 @@ const MoviesList = () => {
   const [currentMovie, setCurrentMovie] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(-1);
 
+  const TYPES = {
+    MOVIE: "movie",
+    TV: "tv",
+  }
+
   const onDataChange = (items) => {
     let movies = [];
 
@@ -23,6 +28,8 @@ const MoviesList = () => {
         key: key,
         title: data.title,
         description: data.description,
+        type: data.type,
+        fullPosterUrl: data.fullPosterUrl,
       });
     });
 
@@ -36,6 +43,10 @@ const MoviesList = () => {
       MovieDataService.getAll().off("value", onDataChange);
     };
   }, []);
+
+  useEffect(() => {
+
+  }, [movies]);
 
   const refreshList = () => {
     setCurrentMovie(null);
@@ -53,22 +64,37 @@ const MoviesList = () => {
   };
 
   return (
-     <div className="list row">
-      <div className="col-md-12">
-        <h4>Movies List</h4>
-
-        {error && <strong>Error: {error}</strong>}
-        {loading && <span>Loading...</span>}
-        <ul className="list-group">
+    <>
+      <h4>Movies List</h4> 
+      <div className="container">
+        <div className="row g-4">
           {!loading &&
             movies &&
-            movies.map((movie, index) => (
-            <Link to={"/movie/" + movie.key}>{movie.title}</Link>
-            ))} 
-        </ul>
-
+            movies.filter((movie) => movie.type === TYPES.MOVIE).map((movie, index) => (
+            <div className="col-sm-4 col-4" key={index}>
+              <Link to={"/movie/" + movie.key}>
+                <img className="img-fluid" style={{ display: "block", margin: "0 auto",}} src={movie.fullPosterUrl}/>
+              </Link>
+            </div>
+          ))}   
+        </div>
       </div>
-    </div>
+
+      <h4>TV List</h4>
+        <div className="container">
+        <div className="row g-4">
+          {!loading &&
+            movies &&
+            movies.filter((movie) => movie.type === TYPES.TV).map((movie, index) => (
+            <div className="col-sm-4 col-4" key={index}>
+              <Link to={"/movie/" + movie.key}>
+                <img className="img-fluid" style={{ display: "block", margin: "0 auto",}} src={movie.fullPosterUrl}/>
+              </Link>
+            </div>
+          ))}   
+        </div>
+      </div>   
+     </>
   );
 };
 

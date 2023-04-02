@@ -22,12 +22,22 @@ const Movie = (props) => {
       key: key,
       title: data.title,
       description: data.description,
+      fullPosterUrl: data.fullPosterUrl,
+      genres: data.genres,
+      language: data.language,
+      mayaHasSeen: data.mayaHasSeen,
+      samHasSeen: data.samHasSeen,
+      runtime: data.runtime,
+      trailerUrl: data.trailerUrl,
+      type: data.type,
+      year: data.year,
     };
 
     setMovie(movieState);
   };
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     MovieDataService.get(params.id).on("value", onDataChange);
 
     return () => {
@@ -126,8 +136,13 @@ const Movie = (props) => {
         </div>
       ) : (
         <div>
-          <div>{movie.title}</div>
+          <h1>{movie.title} ({movie.year})</h1>
+          <img src={movie.fullPosterUrl}/>
+          <div>Runtime: {movie.runtime}</div>
           <div>{movie.description}</div>
+          <iframe width="420" height="315"
+            src={movie.trailerUrl}>
+          </iframe>
         </div>
       )}
     </div>
