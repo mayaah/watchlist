@@ -1,24 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MovieDataService from "../services/MovieService";
+import {Route, Link, Routes, useParams} from 'react-router-dom';
 
 const Movie = (props) => {
+  const params = useParams();
   const initialMovieState = {
-    key: null,
+    key: params.id,
     title: "",
     description: "",
   };
-  const [currentMovie, setCurrentMovie] = useState(initialMovieState);
+  const [movie, setMovie] = useState(initialMovieState);
+  const [isEditing, setIsEditing] = useState(false);
   const [message, setMessage] = useState("");
 
-  const { movie } = props;
-  if (currentMovie.key !== movie.key) {
-    setCurrentMovie(movie);
-    setMessage("");
-  }
+  // const { movie } = props;
+
+  const onDataChange = (item) => {
+    let key = item.key;
+    let data = item.val();
+    let movieState = {
+      key: key,
+      title: data.title,
+      description: data.description,
+    };
+
+    setMovie(movieState);
+  };
+
+  useEffect(() => {
+    MovieDataService.get(params.id).on("value", onDataChange);
+
+    return () => {
+      MovieDataService.get(params.id).off("value", onDataChange);
+    };
+  }, []);
+
+  // if (currentMovie.key !== movie.key) {
+  //   setCurrentMovie(movie);
+  //   setMessage("");
+  // }
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setCurrentMovie({ ...currentMovie, [name]: value });
+    setMovie({ ...movie, [name]: value });
   };
 
   // const updatePublished = (status) => {
@@ -34,11 +58,11 @@ const Movie = (props) => {
 
   const updateMovie = () => {
     const data = {
-      title: currentMovie.title,
-      description: currentMovie.description,
+      title: movie.title,
+      description: movie.description,
     };
 
-    MovieDataService.update(currentMovie.key, data)
+    MovieDataService.update(movie.key, data)
       .then(() => {
         setMessage("The movie was updated successfully!");
       })
@@ -48,7 +72,7 @@ const Movie = (props) => {
   };
 
   const deleteMovie = () => {
-    MovieDataService.remove(currentMovie.key)
+    MovieDataService.remove(movie.key)
       .then(() => {
         props.refreshList();
       })
@@ -59,7 +83,7 @@ const Movie = (props) => {
 
   return (
     <div>
-      {currentMovie ? (
+      {isEditing ? (
         <div className="edit-form">
           <h4>Movie</h4>
           <form>
@@ -70,7 +94,7 @@ const Movie = (props) => {
                 className="form-control"
                 id="title"
                 name="title"
-                value={currentMovie.title}
+                value={movie.title}
                 onChange={handleInputChange}
               />
             </div>
@@ -81,7 +105,7 @@ const Movie = (props) => {
                 className="form-control"
                 id="description"
                 name="description"
-                value={currentMovie.description}
+                value={movie.description}
                 onChange={handleInputChange}
               />
             </div>
@@ -102,8 +126,8 @@ const Movie = (props) => {
         </div>
       ) : (
         <div>
-          <br />
-          <p>Please click on a Movie...</p>
+          <div>{movie.title}</div>
+          <div>{movie.description}</div>
         </div>
       )}
     </div>

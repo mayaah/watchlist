@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useList } from "react-firebase-hooks/database";
+import {Route, Link, Routes, useParams} from 'react-router-dom';
 import MovieDataService from "../services/MovieService";
 import Movie from "./Movie";
 
@@ -41,18 +42,6 @@ const MoviesList = () => {
     setCurrentIndex(-1);
   };
 
-  const setActiveMovie = (movie, index) => {
-    const { title, description } = movie;
-
-    setCurrentMovie({
-      key: movie.key,
-      title,
-      description,
-    });
-
-    setCurrentIndex(index);
-  };
-
   const removeAllMovies = () => {
     MovieDataService.removeAll()
       .then(() => {
@@ -65,7 +54,7 @@ const MoviesList = () => {
 
   return (
      <div className="list row">
-      <div className="col-md-6">
+      <div className="col-md-12">
         <h4>Movies List</h4>
 
         {error && <strong>Error: {error}</strong>}
@@ -74,26 +63,10 @@ const MoviesList = () => {
           {!loading &&
             movies &&
             movies.map((movie, index) => (
-              <li
-                className={"list-group-item " + (index === currentIndex ? "active" : "")}
-                onClick={() => setActiveMovie(movie, index)}
-                key={index}
-              >
-                {movie.title}
-              </li>
+            <Link to={"/movie/" + movie.key}>{movie.title}</Link>
             ))} 
         </ul>
 
-      </div>
-      <div className="col-md-6">
-        {currentMovie ? (
-          <Movie movie={currentMovie} refreshList={refreshList} />
-        ) : (
-          <div>
-            <br />
-            <p>Please click on a Movie...</p>
-          </div>
-        )}
       </div>
     </div>
   );
