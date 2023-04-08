@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import AddMovie from "./components/AddMovie";
 import MoviesList from "./components/MoviesList";
+import Movie from "./components/Movie";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           <Route exact path="/" element={<MoviesList />} />
           <Route exact path="/movies" element={<MoviesList />} />
           <Route exact path="/add" element={<AddMovie />} />
+          <Route path="/movie/:id" element={<Movie />} />
         </Routes>
       </div>
     </div>

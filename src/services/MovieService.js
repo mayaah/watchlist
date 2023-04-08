@@ -6,6 +6,10 @@ const getAll = () => {
   return db;
 };
 
+const get = (key) => {
+  return db.child(key);
+};
+
 const create = (data) => {
   return db.push(data);
 };
@@ -24,6 +28,7 @@ const removeAll = () => {
 
 export default {
   getAll,
+  get,
   create,
   update,
   remove,

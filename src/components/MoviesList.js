@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useList } from "react-firebase-hooks/database";
+import {Route, Link, Routes, useParams} from 'react-router-dom';
 import MovieDataService from "../services/MovieService";
 import Movie from "./Movie";
 
@@ -12,6 +13,11 @@ const MoviesList = () => {
   const [currentMovie, setCurrentMovie] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(-1);
 
+  const TYPES = {
+    MOVIE: "movie",
+    TV: "tv",
+  }
+
   const onDataChange = (items) => {
     let movies = [];
 
@@ -22,6 +28,8 @@ const MoviesList = () => {
         key: key,
         title: data.title,
         description: data.description,
+        type: data.type,
+        fullPosterUrl: data.fullPosterUrl,
       });
     });
 
@@ -36,21 +44,13 @@ const MoviesList = () => {
     };
   }, []);
 
+  useEffect(() => {
+
+  }, [movies]);
+
   const refreshList = () => {
     setCurrentMovie(null);
     setCurrentIndex(-1);
-  };
-
-  const setActiveMovie = (movie, index) => {
-    const { title, description } = movie;
-
-    setCurrentMovie({
-      key: movie.key,
-      title,
-      description,
-    });
-
-    setCurrentIndex(index);
   };
 
   const removeAllMovies = () => {
@@ -64,38 +64,37 @@ const MoviesList = () => {
   };
 
   return (
-     <div className="list row">
-      <div className="col-md-6">
-        <h4>Movies List</h4>
-
-        {error && <strong>Error: {error}</strong>}
-        {loading && <span>Loading...</span>}
-        <ul className="list-group">
+    <>
+      <h4>Movies List</h4> 
+      <div className="container">
+        <div className="row g-4">
           {!loading &&
             movies &&
-            movies.map((movie, index) => (
-              <li
-                className={"list-group-item " + (index === currentIndex ? "active" : "")}
-                onClick={() => setActiveMovie(movie, index)}
-                key={index}
-              >
-                {movie.title}
-              </li>
-            ))} 
-        </ul>
+            movies.filter((movie) => movie.type === TYPES.MOVIE).map((movie, index) => (
+            <div className="col-sm-4 col-4" key={index}>
+              <Link to={"/movie/" + movie.key}>
+                <img className="img-fluid" style={{ display: "block", margin: "0 auto",}} src={movie.fullPosterUrl}/>
+              </Link>
+            </div>
+          ))}   
+        </div>
+      </div>
 
-      </div>
-      <div className="col-md-6">
-        {currentMovie ? (
-          <Movie movie={currentMovie} refreshList={refreshList} />
-        ) : (
-          <div>
-            <br />
-            <p>Please click on a Movie...</p>
-          </div>
-        )}
-      </div>
-    </div>
+      <h4>TV List</h4>
+        <div className="container">
+        <div className="row g-4">
+          {!loading &&
+            movies &&
+            movies.filter((movie) => movie.type === TYPES.TV).map((movie, index) => (
+            <div className="col-sm-4 col-4" key={index}>
+              <Link to={"/movie/" + movie.key}>
+                <img className="img-fluid" style={{ display: "block", margin: "0 auto",}} src={movie.fullPosterUrl}/>
+              </Link>
+            </div>
+          ))}   
+        </div>
+      </div>   
+     </>
   );
 };
 
