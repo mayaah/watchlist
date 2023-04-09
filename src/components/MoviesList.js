@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { useList } from "react-firebase-hooks/database";
 import {Route, Link, Routes, useParams} from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEye } from '@fortawesome/free-solid-svg-icons'
 import MovieDataService from "../services/MovieService";
 import Movie from "./Movie";
+import MovieTile from "./MovieTile";
 
 const MoviesList = () => {
    /* use react-firebase-hooks */
   // const [movies, loading, error] = useList(MovieDataService.getAll());
   const [movies, setMovies] = useState([]);
-  let loading=false;
   let error="";
   const [currentMovie, setCurrentMovie] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(-1);
+  const [actualMovies, setActualMovies] = useState([]);
+  const [tvShows, setTvShows] = useState([]);
+  const [watched, setWatched] = useState([]);
 
   const TYPES = {
     MOVIE: "movie",
@@ -30,6 +35,9 @@ const MoviesList = () => {
         description: data.description,
         type: data.type,
         fullPosterUrl: data.fullPosterUrl,
+        mayaHasSeen: data.mayaHasSeen,
+        samHasSeen: data.samHasSeen,
+        watchedDate: data.watchedDate,
       });
     });
 
@@ -45,7 +53,17 @@ const MoviesList = () => {
   }, []);
 
   useEffect(() => {
+    setActualMovies(movies.filter((movie) => {
+      return movie.type == TYPES.MOVIE && movie.watchedDate === undefined
+    }))
 
+    setTvShows(movies.filter((movie) => {
+      return movie.type == TYPES.TV && movie.watchedDate === undefined
+    }))
+
+    setWatched(movies.filter((movie) => {
+      return movie.watchedDate !== undefined
+    }))
   }, [movies]);
 
   const refreshList = () => {
@@ -65,35 +83,11 @@ const MoviesList = () => {
 
   return (
     <>
-      <h4>Movies List</h4> 
-      <div className="container">
-        <div className="row g-4">
-          {!loading &&
-            movies &&
-            movies.filter((movie) => movie.type === TYPES.MOVIE).map((movie, index) => (
-            <div className="col-sm-4 col-4" key={index}>
-              <Link to={"/movie/" + movie.key}>
-                <img className="img-fluid" style={{ display: "block", margin: "0 auto",}} src={movie.fullPosterUrl}/>
-              </Link>
-            </div>
-          ))}   
-        </div>
-      </div>
+      <MovieTile headerTitle="Movies List" movies={actualMovies} />
 
-      <h4>TV List</h4>
-        <div className="container">
-        <div className="row g-4">
-          {!loading &&
-            movies &&
-            movies.filter((movie) => movie.type === TYPES.TV).map((movie, index) => (
-            <div className="col-sm-4 col-4" key={index}>
-              <Link to={"/movie/" + movie.key}>
-                <img className="img-fluid" style={{ display: "block", margin: "0 auto",}} src={movie.fullPosterUrl}/>
-              </Link>
-            </div>
-          ))}   
-        </div>
-      </div>   
+      <MovieTile headerTitle="TV List" movies={tvShows} />
+
+      <MovieTile headerTitle="Watched" movies={watched} />
      </>
   );
 };
