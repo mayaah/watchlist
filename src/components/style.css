@@ -10,3 +10,38 @@
 .select-search-is-multiple .select-search-has-focus .select-search-container {
 	display: block;
 }
+
+.watched-icons {
+	display: flex;
+	justify-content: center;
+}
+
+.watched-icons img {
+	width: 25px;
+	margin: 0 5px;
+}
+
+.movie-container {
+	text-align: center;
+}
+
+.video-wrapper {
+	position: relative;
+	padding-bottom: 56.25%;
+	height: 0;
+}
+
+.video-wrapper iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+button {
+	background: lightblue;
+	border: none;
+	padding: 10px !important;
+	font-size: 15px !important;
+}

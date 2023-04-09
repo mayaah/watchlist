@@ -12,6 +12,15 @@ const Movie = (props) => {
   const [movie, setMovie] = useState(initialMovieState);
   const [isEditing, setIsEditing] = useState(false);
   const [message, setMessage] = useState("");
+  const [languageMap, setLanguageMap] = useState({});
+  const [movieGenres, setMovieGenres] = useState({});
+  const [tvGenres, setTvGenres] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+
+  const TYPES = {
+    MOVIE: "movie",
+    TV: "tv",
+  }
 
   // const { movie } = props;
 
@@ -31,40 +40,82 @@ const Movie = (props) => {
       trailerUrl: data.trailerUrl,
       type: data.type,
       year: data.year,
+      watchedDate: data.watchedDate,
     };
 
     setMovie(movieState);
+    setIsLoading(false);
   };
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    MovieDataService.get(params.id).on("value", onDataChange);
+
+    getAndSetLanguageMap()
+      .then(getAndSetMovieGenresMap())
+      .then(getAndSetTvGenresMap())
+      .then(MovieDataService.get(params.id).on("value", onDataChange))
 
     return () => {
       MovieDataService.get(params.id).off("value", onDataChange);
     };
   }, []);
 
-  // if (currentMovie.key !== movie.key) {
-  //   setCurrentMovie(movie);
-  //   setMessage("");
-  // }
+  const getLanguages = () => fetch(`https://api.themoviedb.org/3/configuration/languages?api_key=d3449ff6ec0c027623bf6b6f5fff78b3`)
+    .then(res=>res.json());
+
+  const getMovieGenres = () => fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=d3449ff6ec0c027623bf6b6f5fff78b3`)
+    .then(res=>res.json());
+
+  const getTvGenres = () => fetch(`https://api.themoviedb.org/3/genre/tv/list?api_key=d3449ff6ec0c027623bf6b6f5fff78b3`)
+    .then(res=>res.json());
+
+  const getAndSetLanguageMap = () => {
+    return new Promise((resolve, reject) => {
+      getLanguages()
+        .then(data => {
+          let returnObj = {}
+          data.map(({ iso_639_1, english_name  }) => (
+            returnObj[iso_639_1] = english_name
+          ))
+          setLanguageMap(returnObj);
+          resolve();
+        })
+        .catch(reject);
+    })
+  };
+
+  const getAndSetMovieGenresMap = () => {
+    return new Promise((resolve, reject) => {
+      getMovieGenres()
+        .then(data => {
+          let returnObj = {}
+          data.genres.map(({ id, name  }) => (
+            returnObj[id] = name
+          ))
+          setMovieGenres(returnObj);
+        })
+        .catch(reject);
+    })
+  };
+
+  const getAndSetTvGenresMap = () => {
+    return new Promise((resolve, reject) => {
+      getTvGenres()
+        .then(data => {
+          let returnObj = {}
+          data.genres.map(({ id, name  }) => (
+            returnObj[id] = name
+          ))
+          setTvGenres(returnObj);
+        })
+        .catch(reject);
+    })
+  };
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setMovie({ ...movie, [name]: value });
   };
-
-  // const updatePublished = (status) => {
-  //   MovieDataService.update(currentMovie.key, { published: status })
-  //     .then(() => {
-  //       setCurrentMovie({ ...currentMovie, published: status });
-  //       setMessage("The status was updated successfully!");
-  //     })
-  //     .catch((e) => {
-  //       console.log(e);
-  //     });
-  // };
 
   const updateMovie = () => {
     const data = {
@@ -89,6 +140,36 @@ const Movie = (props) => {
       .catch((e) => {
         console.log(e);
       });
+  };
+
+
+  const updateWatched = () => {
+    const timestamp = Date.now()
+    MovieDataService.update(movie.key, { watchedDate: timestamp })
+      .then(() => {
+        setMovie({ ...movie, watchedDate: timestamp });
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  };
+
+  const timeConvert = (number) => {
+    const hours = (number / 60);
+    const rhours = Math.floor(hours);
+    const minutes = (hours - rhours) * 60;
+    const rminutes = Math.round(minutes);
+    return rhours + "h " + rminutes + " m"
+  };
+
+  const displayGenres = (movie) => {
+    let genres = movieGenres;
+    if (movie.type == TYPES.TV) {
+      genres = tvGenres;
+    }
+    return movie.genres.map((genreCode) => {
+      return genres[genreCode]
+    }).join(", ")
   };
 
   return (
@@ -135,15 +216,35 @@ const Movie = (props) => {
           <p>{message}</p>
         </div>
       ) : (
-        <div>
-          <h1>{movie.title} ({movie.year})</h1>
-          <img src={movie.fullPosterUrl}/>
-          <div>Runtime: {movie.runtime}</div>
-          <div>{movie.description}</div>
-          <iframe width="420" height="315"
-            src={movie.trailerUrl}>
-          </iframe>
-        </div>
+        <>
+          {!isLoading && (
+            <>
+              {movie.watchedDate === undefined ? (
+                <button
+                  className="badge badge-primary mr-2"
+                  onClick={() => updateWatched()}
+                >
+                  Mark as watched
+                </button>
+              ) : (
+                <div>Date Watched: {Date(movie.watchedDate*1000)}</div>
+              )}
+              <div className="movie-container">
+              <img src={movie.fullPosterUrl}/>
+              <div className="watched-icons">
+                {movie.samHasSeen && <img className="img-fluid" src={require('../assets/blue-eye.png')} />}
+                {movie.mayaHasSeen && <img className="img-fluid" src={require('../assets/pink-eye.png')} />}
+              </div>
+              <h6>{movie.title} ({movie.year}) &#x2022; {displayGenres(movie)} &#x2022; {timeConvert(movie.runtime)} &#x2022;  {languageMap[movie.language]}</h6>
+              <div>{movie.description}</div>
+              <div className="video-wrapper">
+                <iframe width="560" height="349" src={movie.trailerUrl}>
+                </iframe>
+              </div>
+            </div>
+          </>
+        )}
+        </>
       )}
     </div>
   );

@@ -159,7 +159,7 @@ const AddMovie = () => {
             language: selectedMovie.original_language,
             year: getReleaseYear(selectedMovie.release_date),
             runtime: fullMovieData.runtime,
-            fullPosterUrl: `${imageBaseUrl}w200${selectedMovie.poster_path}`,
+            fullPosterUrl: `${imageBaseUrl}w500${selectedMovie.poster_path}`,
             trailerUrl: `https://www.youtube.com/embed/${movieTrailerData.results.filter(result => result.site == "YouTube")[0].key}`, 
           })
         });
@@ -176,7 +176,7 @@ const AddMovie = () => {
             language: selectedMovie.original_language,
             year: getReleaseYear(selectedMovie.first_air_date),
             runtime: average(fullTvData.episode_run_time),
-            fullPosterUrl: `${imageBaseUrl}w200${selectedMovie.poster_path}`,
+            fullPosterUrl: `${imageBaseUrl}w500${selectedMovie.poster_path}`,
             trailerUrl: `https://www.youtube.com/embed/${tvTrailerData.results.filter(result => result.site == "YouTube")[0].key}`, 
           })
         });
