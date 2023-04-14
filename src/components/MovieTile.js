@@ -6,7 +6,7 @@ const MovieTile = (props) => {
   return (
     <>
       {props.movies.length > 0 && (
-        <div className="container" style={{maxWidth: "700px"}}>
+        <div className="container" style={{maxWidth: "700px", marginBottom: "40px"}}>
           <h4>{props.headerTitle}</h4>
           <div className="row g-4">
             {props.movies.map((movie, index) => (

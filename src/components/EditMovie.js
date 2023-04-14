@@ -386,6 +386,7 @@ const EditMovie = (props) => {
               <input
                 className="me-2"
                 type="checkbox"
+                checked={movie.samHasSeen}
                 value={movie.samHasSeen}
                 name="samHasSeen"
                 onChange={handleCheckboxChange}
@@ -396,6 +397,7 @@ const EditMovie = (props) => {
               <input
                 className="me-2"
                 type="checkbox"
+                checked={movie.mayaHasSeen}
                 value={movie.mayaHasSeen}
                 name="mayaHasSeen"
                 onChange={handleCheckboxChange}
