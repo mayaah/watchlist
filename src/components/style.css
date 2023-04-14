@@ -40,8 +40,9 @@
 }
 
 button {
-	background: lightblue;
-	border: none;
+	background: none;
+	border: 1px solid white;
+	margin: 0 5px;
 	padding: 10px !important;
 	font-size: 15px !important;
 }
