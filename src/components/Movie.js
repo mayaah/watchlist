@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import MovieDataService from "../services/MovieService";
 import {Route, Link, Routes, useParams} from 'react-router-dom';
+import EditMovie from './EditMovie';
 
 const Movie = (props) => {
   const params = useParams();
@@ -27,7 +28,8 @@ const Movie = (props) => {
   const onDataChange = (item) => {
     let key = item.key;
     let data = item.val();
-    let movieState = {
+    if (data !== null) {
+      let movieState = {
       key: key,
       title: data.title,
       description: data.description,
@@ -41,9 +43,11 @@ const Movie = (props) => {
       type: data.type,
       year: data.year,
       watchedDate: data.watchedDate,
+      notes: data.notes,
     };
-
     setMovie(movieState);
+    }
+
     setIsLoading(false);
   };
 
@@ -117,32 +121,6 @@ const Movie = (props) => {
     setMovie({ ...movie, [name]: value });
   };
 
-  const updateMovie = () => {
-    const data = {
-      title: movie.title,
-      description: movie.description,
-    };
-
-    MovieDataService.update(movie.key, data)
-      .then(() => {
-        setMessage("The movie was updated successfully!");
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-  };
-
-  const deleteMovie = () => {
-    MovieDataService.remove(movie.key)
-      .then(() => {
-        props.refreshList();
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-  };
-
-
   const updateWatched = () => {
     const timestamp = Date.now()
     MovieDataService.update(movie.key, { watchedDate: timestamp })
@@ -172,71 +150,50 @@ const Movie = (props) => {
     }).join(", ")
   };
 
+  const setUpEditing = () => {
+    MovieDataService.get(params.id).off("value", onDataChange);
+    setIsEditing(true);
+  };
+
   return (
-    <div>
+    <div style={{marginBottom: "75px"}}>
       {isEditing ? (
         <div className="edit-form">
-          <h4>Movie</h4>
-          <form>
-            <div className="form-group">
-              <label htmlFor="title">Title</label>
-              <input
-                type="text"
-                className="form-control"
-                id="title"
-                name="title"
-                value={movie.title}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="description">Description</label>
-              <input
-                type="text"
-                className="form-control"
-                id="description"
-                name="description"
-                value={movie.description}
-                onChange={handleInputChange}
-              />
-            </div>
-          </form>
-
-          <button className="badge badge-danger mr-2" onClick={deleteMovie}>
-            Delete
-          </button>
-
-          <button
-            type="submit"
-            className="badge badge-success"
-            onClick={updateMovie}
-          >
-            Update
-          </button>
-          <p>{message}</p>
+          <EditMovie movie={movie} isNew={false} />
         </div>
       ) : (
         <>
           {!isLoading && (
             <>
-              {movie.watchedDate === undefined ? (
+              <div className="mb-4 mt-4" style={{display: "flex", justifyContent: "end"}}>
                 <button
-                  className="badge badge-primary mr-2"
-                  onClick={() => updateWatched()}
-                >
-                  Mark as watched
-                </button>
-              ) : (
-                <div>Date Watched: {Date(movie.watchedDate*1000)}</div>
-              )}
-              <div className="movie-container">
-              <img src={movie.fullPosterUrl}/>
-              <div className="watched-icons">
-                {movie.samHasSeen && <img className="img-fluid" src={require('../assets/blue-eye.png')} />}
-                {movie.mayaHasSeen && <img className="img-fluid" src={require('../assets/pink-eye.png')} />}
+                      className="badge badge-primary mr-2"
+                      onClick={() => setUpEditing()}
+                    >
+                      Edit
+                  </button>
+                {movie.watchedDate === undefined ? (
+                  <button
+                    className="badge badge-primary mr-2"
+                    onClick={() => updateWatched()}
+                  >
+                    Mark as Watched
+                  </button>
+                ) : (
+                  <div>Date Watched: {Date(movie.watchedDate*1000)}</div>
+                )}
               </div>
-              <h6>{movie.title} ({movie.year}) &#x2022; {displayGenres(movie)} &#x2022; {timeConvert(movie.runtime)} &#x2022;  {languageMap[movie.language]}</h6>
-              <div>{movie.description}</div>
+              <div className="movie-container">
+              <img className="img-fluid mb-4" src={movie.fullPosterUrl}/>
+              <div className="watched-icons">
+                {movie.samHasSeen && <img className="img-fluid" src={require('../assets/white-blue-eye.png')} />}
+                {movie.mayaHasSeen && <img className="img-fluid" src={require('../assets/white-pink-eye.png')} />}
+              </div>
+              <h5 className="mb-4">
+                {movie.title} ({movie.year}) &#x2022; {displayGenres(movie)} &#x2022; {timeConvert(movie.runtime)} &#x2022;  {languageMap[movie.language]}
+                </h5>
+              <div className="mb-4">{movie.description}</div>
+              {movie.notes && <div className="mb-4">Notes: {movie.notes}</div>}
               <div className="video-wrapper">
                 <iframe width="560" height="349" src={movie.trailerUrl}>
                 </iframe>

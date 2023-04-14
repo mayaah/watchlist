@@ -82,13 +82,13 @@ const MoviesList = () => {
   };
 
   return (
-    <>
-      <MovieTile headerTitle="Movies List" movies={actualMovies} />
+    <div style={{marginBottom: "75px"}}>
+      <MovieTile headerTitle="MOVIES" movies={actualMovies} />
 
-      <MovieTile headerTitle="TV List" movies={tvShows} />
+      <MovieTile headerTitle="TV" movies={tvShows} />
 
-      <MovieTile headerTitle="Watched" movies={watched} />
-     </>
+      <MovieTile headerTitle="WATCHED" movies={watched} />
+     </div>
   );
 };
 
