@@ -15,12 +15,16 @@ const MoviesList = () => {
   const [currentMovie, setCurrentMovie] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [actualMovies, setActualMovies] = useState([]);
+  const [filterLessThanTwoHours, setFilterLessThanTwoHours] = useState(false);
   const [tvShows, setTvShows] = useState([]);
   const [watched, setWatched] = useState([]);
 
   const TYPES = {
     MOVIE: "movie",
     TV: "tv",
+  }
+  const handleChange=(e)=>{
+   setFilterLessThanTwoHours(!filterLessThanTwoHours)
   }
 
   const onDataChange = (items) => {
@@ -38,6 +42,7 @@ const MoviesList = () => {
         mayaHasSeen: data.mayaHasSeen,
         samHasSeen: data.samHasSeen,
         watchedDate: data.watchedDate,
+        runtime: data.runtime,
       });
     });
 
@@ -53,18 +58,25 @@ const MoviesList = () => {
   }, []);
 
   useEffect(() => {
-    setActualMovies(movies.filter((movie) => {
+    let filteredMovies = movies;
+    if (filterLessThanTwoHours) {
+      filteredMovies = movies.filter((movie) => {
+        return movie.runtime < 120
+      })
+    }
+
+    setActualMovies(filteredMovies.filter((movie) => {
       return movie.type == TYPES.MOVIE && movie.watchedDate === undefined
     }))
 
-    setTvShows(movies.filter((movie) => {
+    setTvShows(filteredMovies.filter((movie) => {
       return movie.type == TYPES.TV && movie.watchedDate === undefined
     }))
 
-    setWatched(movies.filter((movie) => {
+    setWatched(filteredMovies.filter((movie) => {
       return movie.watchedDate !== undefined
     }))
-  }, [movies]);
+  }, [movies, filterLessThanTwoHours]);
 
   const refreshList = () => {
     setCurrentMovie(null);
@@ -83,6 +95,18 @@ const MoviesList = () => {
 
   return (
     <div style={{marginBottom: "75px"}}>
+      <div class="form-check form-switch">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          id="filterLessThanTwoHours"
+          checked={filterLessThanTwoHours}
+          value={filterLessThanTwoHours}
+          onChange={handleChange}
+        />
+        <label class="form-check-label" for="filterLessThanTwoHours">Less Than Two Hours</label>
+      </div>
+
       <MovieTile headerTitle="MOVIES" movies={actualMovies} />
 
       <MovieTile headerTitle="TV" movies={tvShows} />

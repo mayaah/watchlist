@@ -30,22 +30,22 @@ const Movie = (props) => {
     let data = item.val();
     if (data !== null) {
       let movieState = {
-      key: key,
-      title: data.title,
-      description: data.description,
-      fullPosterUrl: data.fullPosterUrl,
-      genres: data.genres,
-      language: data.language,
-      mayaHasSeen: data.mayaHasSeen,
-      samHasSeen: data.samHasSeen,
-      runtime: data.runtime,
-      trailerUrl: data.trailerUrl,
-      type: data.type,
-      year: data.year,
-      watchedDate: data.watchedDate,
-      notes: data.notes,
-    };
-    setMovie(movieState);
+        key: key,
+        title: data.title,
+        description: data.description,
+        fullPosterUrl: data.fullPosterUrl,
+        genres: data.genres,
+        language: data.language,
+        mayaHasSeen: data.mayaHasSeen,
+        samHasSeen: data.samHasSeen,
+        runtime: data.runtime,
+        trailerUrl: data.trailerUrl,
+        type: data.type,
+        year: data.year,
+        watchedDate: data.watchedDate,
+        notes: data.notes,
+      };
+      setMovie(movieState);
     }
 
     setIsLoading(false);
@@ -62,7 +62,7 @@ const Movie = (props) => {
     return () => {
       MovieDataService.get(params.id).off("value", onDataChange);
     };
-  }, []);
+  }, [params]);
 
   const getLanguages = () => fetch(`https://api.themoviedb.org/3/configuration/languages?api_key=d3449ff6ec0c027623bf6b6f5fff78b3`)
     .then(res=>res.json());
